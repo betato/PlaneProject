@@ -1,63 +1,45 @@
-#define SERVO_PWM_PERIOD 20 * 1000
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BMP280.h>
+#include <Adafruit_SSD1306.h>
 
-enum ServoState {
-	CYCLE_HIGH,
-	CYCLE_LOW
-};
+#define BMP_SCK 13
+#define BMP_MISO 12
+#define BMP_MOSI 11 
+#define BMP_CS 10
 
-struct ServoCtrl {
-	uint8_t pin;
-	int position;
-	ServoState state;
+Adafruit_BMP280 bmp;
 
-	int lastCycleTime;
-} testServo;
+#define OLED_RESET 4
+Adafruit_SSD1306 display(OLED_RESET);
 
-int srv_get_duty_cycle(int position) {
-	//linear interpolate between 1 ms to 2 ms duty cycle
-	int minAngle = -90;
-	int maxAngle = 90;
-	//all times are in microseconds
-	int minCycle = 1000;
-	int maxCycle = 2000;
-	float lerp = (float)(position - minAngle) / (float)(maxAngle - minAngle);
-	return minCycle + (lerp * (maxCycle - minCycle));
+#define LED_ADDR = 0x3C
+
+void initLcd() {
+	display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+	display.clearDisplay();
+	display.setTextSize(1);
+	display.setTextColor(WHITE);
 }
 
-void srv_init(struct ServoCtrl* servo, uint8_t pin) {
-	servo->pin = pin;
-	pinMode(pin, OUTPUT);
-	servo->position = 0;
-	servo->lastCycleTime = micros();
-	//initialize it to the high portion of the pwm cycle
-	servo->state = CYCLE_HIGH;
-	digitalWrite(servo->pin, HIGH);
-}
-
-void srv_update(struct ServoCtrl* servo) {
-	unsigned long time = micros();
-	if (servo->state == CYCLE_HIGH) {
-		//check if its time to turn off the power
-		if (time - servo->lastCycleTime > srv_get_duty_cycle(servo->position)) {
-			digitalWrite(servo->pin, LOW);
-			servo->state = CYCLE_LOW;
-		}
-	}
-	if (servo->state == CYCLE_LOW) {
-		//check if its time to start a new cycle
-		if (time - servo->lastCycleTime > SERVO_PWM_PERIOD) {
-			servo->lastCycleTime = micros();
-			digitalWrite(servo->pin, HIGH);
-			servo->state = CYCLE_HIGH;
-		}
+void initBmp() {
+	if (!bmp.begin(0x76)) {
+		digitalWrite(LED_BUILTIN, HIGH);
 	}
 }
 
 void setup() {
-	srv_init(&testServo, 6);
+	pinMode(LED_BUILTIN, OUTPUT);
+	initLcd();
+	initBmp();
 }
 
 void loop() {
-	srv_update(&testServo);
-	testServo.position = 0;
+	display.clearDisplay();
+	display.setCursor(0, 0);
+	display.print((double)bmp.readTemperature());
+	display.display();
+	delay(50);
 }
