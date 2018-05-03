@@ -1,0 +1,4 @@
+The header files must be modified to work with this project:
+
+<Adafruit_SSD1306.h>:
+SSD1306_128_64 must be defined instead of the default resolution given
