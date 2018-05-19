@@ -28,7 +28,7 @@ void setup() {
 
 void loop() {
 	pkt_update();
-	if (pkt_available) {
+	if (pkt_available()) {
 		switch (pkt_payloadType) {
 		case JOY_INPUT:
 			union JoyInput input = pkt_readJoyInput();

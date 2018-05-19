@@ -26,7 +26,8 @@ enum PacketType {
 
 enum PktState {
 	WAIT_HEADER,
-	WAIT_PAYLOAD
+	WAIT_PAYLOAD,
+	PKT_RECIEVED
 };
 
 PktState pkt_state;
@@ -34,7 +35,10 @@ PktState pkt_state;
 PacketType pkt_payloadType;
 size_t pkt_payloadSize;
 uint8_t pkt_payload[20];
-bool pkt_available = false;
+
+bool pkt_available() {
+	return (pkt_state == PKT_RECIEVED);
+}
 
 void pkt_update() {
 	if (pkt_state == WAIT_HEADER) {
@@ -58,14 +62,13 @@ void pkt_update() {
 			}
 			//dispose of the end marker
 			pkt_readByte();
-			pkt_available = true;
+			pkt_state = PKT_RECIEVED;
 		}
 	}
 }
 
 uint8_t* pkt_readPacket() { 
 	pkt_state = WAIT_HEADER;
-	pkt_available = false;
 	return pkt_payload;
 }
 
