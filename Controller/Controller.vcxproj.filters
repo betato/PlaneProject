@@ -15,14 +15,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="plane.ino" />
+    <None Include="Controller.ino" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="__vm\.PlaneProject.vsarduino.h">
+    <ClInclude Include="__vm\.Controller.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="IMPORTANT.txt" />
   </ItemGroup>
 </Project>
