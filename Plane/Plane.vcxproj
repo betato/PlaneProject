@@ -96,7 +96,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties arduino.upload.port="COM9" debug.view.DigitalPins="" />
+      <UserProperties arduino.upload.port="COM11" debug.view.DigitalPins="" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
