@@ -1,4 +1,5 @@
 #include <common_packet.h>
+#include "input.h"
 
 #include <Wire.h>
 #include <SPI.h>
@@ -17,27 +18,34 @@ void initLcd() {
 
 void setup() {
 	Serial.begin(9600);
-	Serial.println("setup");
 	pkt_initRadio();
 	initLcd();
+	//set the radio transmitter to normal mode
 	pinMode(7, OUTPUT);
 	digitalWrite(7, HIGH);
-	Serial.println("setup2");
+	in_init();
+}
 
+char buf[20];
+
+void displayInputs() {
+	lcd.clearDisplay();
+	lcd.setCursor(0, 0);
+	sprintf(buf, "Pitch: %d", in_pitchConv(in_pitch));
+	lcd.println(buf);
+	sprintf(buf, "Roll: %d", in_rollConv(in_roll));
+	lcd.println(buf);
+	sprintf(buf, "Yaw: %d", in_yawConv(in_yaw));
+	lcd.println(buf);
+	sprintf(buf, "Throttle: %d", in_throttleConv(in_throttle));
+	lcd.println(buf);
+	lcd.println(millis());
+	lcd.display();
 }
 
 void loop() {
-	pkt_update();
-	if (pkt_available()) {
-		switch (pkt_payloadType) {
-		case JOY_INPUT:
-			union JoyInput input = pkt_readJoyInput();
-			lcd.setCursor(0, 0);
-			lcd.clearDisplay();
-			lcd.println(input.data.type);
-			lcd.println(input.data.value);
-			lcd.display();
-			break;
-		}
+	in_update();
+	if (in_pitchChg || in_rollChg || in_yawChg || in_throttleChg) {
+		displayInputs();
 	}
 }
