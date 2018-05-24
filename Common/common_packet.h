@@ -58,7 +58,6 @@ void pkt_update() {
 			for (int i = 0; i < pkt_payloadSize; i++) {
 				uint8_t byte = pkt_readByte();
 				pkt_payload[i] = byte;
-				Serial.println(byte);
 			}
 			//dispose of the end marker
 			pkt_readByte();
