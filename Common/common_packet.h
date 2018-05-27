@@ -21,7 +21,7 @@ uint8_t pkt_readByte() {
 
 enum PacketType {
 	NONE = 0,
-	JOY_INPUT = 12
+	CONTROL_INPUT = 1
 };
 
 enum PktState {
@@ -83,32 +83,28 @@ void pkt_send(PacketType type, uint8_t* data, size_t size) {
 }
 
 
-//PACKET: JOY_INPUT
-enum JoyInputType {
-	AXIS_X,
-	AXIS_Y,
-	CLICK = 66
+//PACKET: CONTROL_INPUT
+typedef struct _ControlInput {
+	uint8_t pitch;
+	uint8_t roll;
+	uint8_t yaw;
+	uint8_t throttle;
 };
 
-typedef struct _JoyInput {
-	JoyInputType type;
-	unsigned long value;
+typedef union ControlInput {
+	_ControlInput data;
+	uint8_t bytes[sizeof(_ControlInput)];
 };
 
-typedef union JoyInput {
-	_JoyInput data;
-	uint8_t bytes[sizeof(_JoyInput)];
-};
-
-void pkt_sendJoyInput(JoyInput* joyInput) {
-	size_t size = sizeof(_JoyInput);
-	pkt_send(JOY_INPUT, joyInput->bytes, size);
+void pkt_sendControlInput(ControlInput* joyInput) {
+	size_t size = sizeof(_ControlInput);
+	pkt_send(CONTROL_INPUT, joyInput->bytes, size);
 }
 
-JoyInput pkt_readJoyInput() {
+ControlInput pkt_readControlInput() {
 	uint8_t* payload = pkt_readPacket();
-	JoyInput input;
-	for (int i = 0; i < sizeof(JoyInput); i++) {
+	ControlInput input;
+	for (int i = 0; i < sizeof(ControlInput); i++) {
 		input.bytes[i] = payload[i];
 	}
 	return input;

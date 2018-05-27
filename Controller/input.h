@@ -17,21 +17,21 @@ int lerp(int a, int b, float f) {
 	return a + (int)(f * (b - a));
 }
 
-#define PITCH_MAX 100
+#define PITCH_MAX 160
 #define PITCH_MIN 20
 int in_pitchConv(int pitch) {
 	float lerpVal = (float)pitch / INPUT_MAX;
 	return lerp(PITCH_MIN, PITCH_MAX, lerpVal);
 }
 
-#define ROLL_MAX 100
+#define ROLL_MAX 160
 #define ROLL_MIN 20
 int in_rollConv(int roll) {
 	float lerpVal = (float)roll / INPUT_MAX;
 	return lerp(ROLL_MIN, ROLL_MAX, lerpVal);
 }
 
-#define YAW_MAX 100
+#define YAW_MAX 160
 #define YAW_MIN 20
 int in_yawConv(int yaw) {
 	float lerpVal = (float)yaw / INPUT_MAX;
@@ -45,32 +45,31 @@ int in_throttleConv(int throttle) {
 	return lerp(THROTTLE_MIN, THROTTLE_MAX, lerpVal);
 }
 
-int in_pitch = 0;
-int in_roll = 0;
-int in_yaw = 0;
-int in_throttle = 0;
+uint8_t in_pitch = 0;
+uint8_t in_roll = 0;
+uint8_t in_yaw = 0;
+uint8_t in_throttle = 0;
 
-bool in_pitchChg = false;
-bool in_rollChg = false;
-bool in_yawChg = false;
-bool in_throttleChg = false;
+#define IN_UPDATE_INTERVAL 10
+unsigned long in_lastUpdate;
 
 void in_init() {
 	pinMode(PIN_PITCH, INPUT);
 	pinMode(PIN_ROLL, INPUT);
 	pinMode(PIN_YAW, INPUT);
 	pinMode(PIN_THROTTLE, INPUT);
+	in_lastUpdate = millis();
 }
 
-void in_read_input(uint8_t pin, int* value, bool* chg) {
-	int newValue = analogRead(pin);
-	*chg = (abs(*value - newValue) > INPUT_EPSILON);
-	*value = newValue;
-}
 
 void in_update() {
-	in_read_input(PIN_PITCH, &in_pitch, &in_pitchChg);
-	in_read_input(PIN_ROLL, &in_roll, &in_rollChg);
-	in_read_input(PIN_YAW, &in_yaw, &in_yawChg);
-	in_read_input(PIN_THROTTLE, &in_throttle, &in_throttleChg);
+	if (millis() - in_lastUpdate > IN_UPDATE_INTERVAL) {
+		ControlInput input;
+		input.data.pitch = in_pitchConv(in_pitch);
+		input.data.roll = in_rollConv(in_roll);
+		input.data.yaw = in_yawConv(in_yaw);
+		input.data.throttle = in_throttleConv(in_throttle);
+		pkt_sendControlInput(&input);
+		in_lastUpdate = millis();
+	}
 }

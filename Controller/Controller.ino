@@ -19,7 +19,7 @@ void initLcd() {
 void setup() {
 	Serial.begin(9600);
 	pkt_initRadio();
-	initLcd();
+	//initLcd();
 	//set the radio transmitter to normal mode
 	pinMode(7, OUTPUT);
 	digitalWrite(7, HIGH);
@@ -45,7 +45,4 @@ void displayInputs() {
 
 void loop() {
 	in_update();
-	if (in_pitchChg || in_rollChg || in_yawChg || in_throttleChg) {
-		displayInputs();
-	}
 }
