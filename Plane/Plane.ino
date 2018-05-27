@@ -6,6 +6,7 @@
 #define PIN_ROLL 3
 #define PIN_PITCH 5
 #define PIN_YAW 6
+#define PIN_THROTTLE 11
 
 //the roll servo is actually two servos attached together
 ServoTimer2 rollServo;
@@ -40,6 +41,7 @@ void loop() {
 			pitchServo.write(angleToMicros(input.data.pitch));
 			rollServo.write(angleToMicros(input.data.pitch));
 			yawServo.write(angleToMicros(input.data.yaw));
+			analogWrite(PIN_THROTTLE, input.data.throttle);
 		}
 		else {
 			Serial.println(pkt_payloadType);
