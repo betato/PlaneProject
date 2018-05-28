@@ -21,7 +21,8 @@ uint8_t pkt_readByte() {
 
 enum PacketType {
 	NONE = 0,
-	CONTROL_INPUT = 1
+	CONTROL_INPUT = 1,
+	CONTROL_ACK = 2
 };
 
 enum PktState {
@@ -30,7 +31,7 @@ enum PktState {
 	PKT_RECIEVED
 };
 
-PktState pkt_state;
+PktState pkt_state = WAIT_HEADER;
 
 PacketType pkt_payloadType;
 size_t pkt_payloadSize;
@@ -108,5 +109,30 @@ ControlInput pkt_readControlInput() {
 		input.bytes[i] = payload[i];
 	}
 	return input;
+}
+
+//PACKET: CONTROL_ACK
+
+typedef struct _ControlAck {
+	int voltage;
+};
+
+typedef union ControlAck {
+	_ControlAck data;
+	uint8_t bytes[sizeof(_ControlAck)];
+};
+
+void pkt_sendControlAck(ControlAck* ack) {
+	size_t size = sizeof(_ControlAck);
+	pkt_send(CONTROL_ACK, ack->bytes, size);
+}
+
+ControlAck pkt_readControlAck() {
+	uint8_t* payload = pkt_readPacket();
+	ControlAck ack;
+	for (int i = 0; i < sizeof(ControlAck); i++) {
+		ack.bytes[i] = payload[i];
+	}
+	return ack;
 }
 

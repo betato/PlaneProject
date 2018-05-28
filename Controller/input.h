@@ -45,12 +45,12 @@ int in_throttleConv(int throttle) {
 	return lerp(THROTTLE_MIN, THROTTLE_MAX, lerpVal);
 }
 
-uint8_t in_pitch = 0;
-uint8_t in_roll = 0;
-uint8_t in_yaw = 0;
-uint8_t in_throttle = 0;
+int in_pitch = 0;
+int in_roll = 0;
+int in_yaw = 0;
+int in_throttle = 0;
 
-#define IN_UPDATE_INTERVAL 10
+#define IN_UPDATE_INTERVAL 100
 unsigned long in_lastUpdate;
 
 void in_init() {
@@ -64,6 +64,10 @@ void in_init() {
 
 void in_update() {
 	if (millis() - in_lastUpdate > IN_UPDATE_INTERVAL) {
+		in_pitch = analogRead(PIN_PITCH);
+		in_roll = analogRead(PIN_ROLL);
+		in_yaw = analogRead(PIN_YAW);
+		in_throttle = analogRead(PIN_THROTTLE);
 		ControlInput input;
 		input.data.pitch = in_pitchConv(in_pitch);
 		input.data.roll = in_rollConv(in_roll);

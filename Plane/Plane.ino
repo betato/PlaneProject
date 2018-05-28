@@ -33,6 +33,11 @@ int angleToMicros(int angle) {
 	return 1000 + (int)(lerpFac * (float)(2000 - 1000));
 }
 
+int getVoltage() {
+	//rounded up to the nearest 5V
+	return 5;
+}
+
 void loop() {
 	pkt_update();
 	if (pkt_available()) {
@@ -42,9 +47,13 @@ void loop() {
 			rollServo.write(angleToMicros(input.data.pitch));
 			yawServo.write(angleToMicros(input.data.yaw));
 			analogWrite(PIN_THROTTLE, input.data.throttle);
+			Serial.println(input.data.throttle);
+			ControlAck ack;
+			ack.data.voltage = getVoltage();
+			pkt_sendControlAck(&ack);
 		}
 		else {
-			Serial.println(pkt_payloadType);
+			//Serial.println(pkt_payloadType);
 			pkt_readPacket();
 		}
 	}

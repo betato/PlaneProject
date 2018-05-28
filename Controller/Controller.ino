@@ -44,5 +44,16 @@ void displayInputs() {
 }
 
 void loop() {
+	pkt_update();
+	if (pkt_available()) {
+		if (pkt_payloadType == CONTROL_ACK) {
+			ControlAck ack = pkt_readControlAck();
+			Serial.println(ack.data.voltage);
+		}
+		else {
+			Serial.println(pkt_payloadType);
+			pkt_readPacket();
+		}
+	}
 	in_update();
 }
